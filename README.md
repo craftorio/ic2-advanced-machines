@@ -86,10 +86,20 @@ hooked into are all gone. The processing core survives, so this port:
   heat/spin-up base (`te/TileEntityHeatingMachine`, `te/TileEntityHeatingWaterMachine`),
   sounds via `Ic2SoundEvents`, and the extra recycler recipe in code (`AdvRecipes`).
 
-### Known differences from the original
+### Texture styles
 
-- The switchable **"Classic" texture profile** is dropped (no equivalent without IC2's
-  profile system); the default skin ships only.
+The mod ships with both texture sets from the original. The **classic** (IC2-Classic) look is the
+**default**; the **modern** (IC2 Experimental) look is a bundled resource pack force-enabled by a
+client config toggle. Edit `config/advanced_machines-client.toml`:
+
+```toml
+modernTextures = true   # false = classic (default), true = modern
+```
+
+Changing it requires a restart (it swaps a resource pack). IC2's old profile-driven runtime switch
+has no equivalent, so this config toggle replaces it.
+
+### Known differences from the original
 - The water machines are filled via **fluid pipes/cells**; right-click-with-bucket filling is
   not reimplemented.
 - Animated active models (centrifuge / thermal washer) collapse to a single active model.

@@ -1,12 +1,12 @@
 {
 	"parent": "block/cube",
 	"textures": {
-		"particle": "advanced_machines:block/extruder/extruder_back",
-		"down": "advanced_machines:block/extruder/extruder_bottom",
-		"up": "advanced_machines:block/extruder/extruder_top",
-		"north": "advanced_machines:block/extruder/extruder_front",
-		"east": "advanced_machines:block/extruder/extruder_side",
-		"south": "advanced_machines:block/extruder/extruder_back",
-		"west": "advanced_machines:block/extruder/extruder_side"
+		"particle": "advanced_machines:block/former/former_back",
+		"down": "advanced_machines:block/former/former_bottom",
+		"up": "advanced_machines:block/former/former_top",
+		"north": "advanced_machines:block/former/former_front",
+		"east": "advanced_machines:block/former/former_side",
+		"south": "advanced_machines:block/former/former_back",
+		"west": "advanced_machines:block/former/former_side"
 	}
 }

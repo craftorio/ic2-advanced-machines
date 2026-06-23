@@ -5,8 +5,8 @@
 		"down": "advanced_machines:block/recycler/recycler_bottom",
 		"up": "advanced_machines:block/recycler/recycler_top",
 		"north": "advanced_machines:block/recycler/recycler_front",
-		"east": "advanced_machines:block/recycler/recycler_right",
+		"east": "advanced_machines:block/recycler/recycler_side",
 		"south": "advanced_machines:block/recycler/recycler_back",
-		"west": "advanced_machines:block/recycler/recycler_left"
+		"west": "advanced_machines:block/recycler/recycler_side"
 	}
 }

@@ -6,7 +6,7 @@
 		"up": "advanced_machines:block/washer/washer_top_n_bottom",
 		"north": "advanced_machines:block/washer/washer_front",
 		"east": "advanced_machines:block/washer/washer_side",
-		"south": "advanced_machines:block/washer/washer_back",
+		"south": "advanced_machines:block/washer/washer_side",
 		"west": "advanced_machines:block/washer/washer_side"
 	}
 }

@@ -5,8 +5,8 @@
 		"down": "advanced_machines:block/compressor/compressor_bottom",
 		"up": "advanced_machines:block/compressor/compressor_top",
 		"north": "advanced_machines:block/compressor/compressor_front",
-		"east": "advanced_machines:block/compressor/compressor_right",
+		"east": "advanced_machines:block/compressor/compressor_side",
 		"south": "advanced_machines:block/compressor/compressor_back",
-		"west": "advanced_machines:block/compressor/compressor_left"
+		"west": "advanced_machines:block/compressor/compressor_side"
 	}
 }
