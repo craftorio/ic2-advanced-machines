@@ -1,5 +1,9 @@
 package com.chocohead.AdvMachines.te;
 
+import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
@@ -19,15 +23,20 @@ import ic2.core.block.invslot.InvSlotProcessable;
 import ic2.core.block.invslot.InvSlotProcessableGeneric;
 import ic2.core.block.invslot.InvSlotUpgrade;
 import ic2.core.block.machine.tileentity.TileEntityElectricMachine;
+import ic2.core.block.tileentity.TileEntityInventory;
 import ic2.core.gui.dynamic.DynamicContainer;
+import ic2.core.gui.dynamic.GuiParser;
 import ic2.core.gui.dynamic.IGuiValueProvider;
 import ic2.core.network.GrowingBuffer;
 import ic2.core.network.GuiSynced;
+import ic2.core.ref.Ic2ScreenHandlers;
 import ic2.core.ref.Ic2SoundEvents;
 import ic2.core.util.StackUtil;
+import ic2.core.util.Util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -192,14 +201,42 @@ public abstract class TileEntityHeatingMachine extends TileEntityElectricMachine
 		}
 	}
 
+	// IC2's GuiParser loads guidef XML via GuiParser.class.getResourceAsStream(), which under the
+	// Forge 1.20.1 module system only sees IC2's own jar — not this addon's. So we parse the guidef
+	// from this class's own classloader and hand the resulting node to DynamicContainer directly.
+	private static final Method GUI_PARSE_STREAM;
+	static {
+		try {
+			Method m = GuiParser.class.getDeclaredMethod("parse", InputStream.class, Class.class);
+			m.setAccessible(true);
+			GUI_PARSE_STREAM = m;
+		} catch (ReflectiveOperationException e) {
+			throw new RuntimeException("Could not access IC2 GuiParser.parse(InputStream, Class)", e);
+		}
+	}
+
+	private GuiParser.GuiNode parseGui() {
+		ResourceLocation id = Util.getName(this.getBlockType());
+		String path = String.format("/assets/%s/guidef/%s.xml", id.getNamespace(), id.getPath());
+		try (InputStream raw = this.getClass().getResourceAsStream(path)) {
+			if (raw == null) {
+				throw new FileNotFoundException("Could not load " + path + " from the addon classpath.");
+			}
+
+			return (GuiParser.GuiNode) GUI_PARSE_STREAM.invoke(null, new BufferedInputStream(raw), this.getClass());
+		} catch (Exception e) {
+			throw new RuntimeException("Error reading/parsing GUI definition " + id + " from " + path, e);
+		}
+	}
+
 	@Override
 	public ContainerBase<?> createServerScreenHandler(int syncId, Player player) {
-		return DynamicContainer.create(syncId, player.getInventory(), this);
+		return DynamicContainer.create(Ic2ScreenHandlers.DYNAMIC_BE, syncId, player.getInventory(), (TileEntityInventory) this, parseGui());
 	}
 
 	@Override
 	public ContainerBase<?> createClientScreenHandler(int syncId, Inventory inventory, GrowingBuffer data) {
-		return DynamicContainer.create(syncId, inventory, this);
+		return DynamicContainer.create(Ic2ScreenHandlers.DYNAMIC_BE, syncId, inventory, (TileEntityInventory) this, parseGui());
 	}
 
 	@Override
