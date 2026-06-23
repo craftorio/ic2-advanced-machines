@@ -13,7 +13,7 @@
     	<button type="recipe" x="74" y="34" width="29" height="19" event="metal_former0, liquescent_extruder"></button>
    	</environment>
     <energygauge x="55" y="37"/>
-    <gauge name="progress" x="74" y="34" style="progress_extruder"/>
+    <gauge name="progress" x="74" y="34" style="progressmetalformer"/>
     <playerInventory x="7" y="83"/>
 
 	<text x="10" y="26">{advanced_machines.gui.temp}</text>
