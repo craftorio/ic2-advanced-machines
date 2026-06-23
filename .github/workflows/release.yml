@@ -1,0 +1,80 @@
+name: Release
+
+# Tag format (fixed): <mod_version>+<ic2_version>
+# Example: 61.0.1+2.10.26-ex120
+on:
+  push:
+    tags:
+      - '*+*'
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Parse release tag
+        id: tag
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          mod_version="${tag%%+*}"
+          ic2_version="${tag#*+}"
+
+          if [[ -z "$mod_version" || -z "$ic2_version" || "$mod_version" == "$tag" ]]; then
+            echo "::error::Tag must be <mod_version>+<ic2_version> (example: 61.0.1+2.10.26-ex120), got: $tag"
+            exit 1
+          fi
+
+          mod_id="$(grep '^mod_id=' gradle.properties | cut -d= -f2)"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "mod_id=$mod_id" >> "$GITHUB_OUTPUT"
+          echo "mod_version=$mod_version" >> "$GITHUB_OUTPUT"
+          echo "ic2_version=$ic2_version" >> "$GITHUB_OUTPUT"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build IC2 dependency
+        run: |
+          ic2_version="${{ steps.tag.outputs.ic2_version }}"
+          git clone --depth 1 --branch "$ic2_version" \
+            https://github.com/HalfCooler/ic2.git ../ic2
+          cd ../ic2
+          chmod +x gradlew
+          ./gradlew build --no-daemon -x test
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p libs
+          jar cf "libs/ic2-forge-${ic2_version}-dev.jar" \
+            -C ../ic2/build/classes/java/main . \
+            -C ../ic2/build/resources/main .
+
+      - name: Build mod
+        run: |
+          ./gradlew build --no-daemon \
+            -Pmod_version="${{ steps.tag.outputs.mod_version }}" \
+            -Pic2_version="${{ steps.tag.outputs.ic2_version }}"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Advanced Machines ${{ steps.tag.outputs.mod_version }} (IC2 ${{ steps.tag.outputs.ic2_version }})
+          body: |
+            Mod version: `${{ steps.tag.outputs.mod_version }}`
+            IC2 version: `${{ steps.tag.outputs.ic2_version }}`
+            Tag: `${{ steps.tag.outputs.tag }}`
+          files: build/libs/${{ steps.tag.outputs.mod_id }}-${{ steps.tag.outputs.mod_version }}.jar
+          generate_release_notes: true

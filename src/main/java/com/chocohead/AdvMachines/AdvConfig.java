@@ -8,10 +8,10 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 /**
- * Client config. The machines ship with the classic IC2-Classic style textures by default;
- * enabling {@code modernTextures} force-loads a bundled resource pack with the modern
- * (IC2 Experimental style) look instead. Changing it requires a restart (or a resource reload)
- * because it swaps a resource pack.
+ * Client config. The machines ship with the modern IC2 Experimental style textures by default
+ * via a bundled resource pack; disabling {@code modernTextures} falls back to the classic
+ * IC2-Classic look. Changing it requires a restart (or a resource reload) because it swaps
+ * a resource pack.
  */
 public final class AdvConfig {
 	public static final ForgeConfigSpec CLIENT_SPEC;
@@ -21,9 +21,9 @@ public final class AdvConfig {
 		ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 		MODERN_TEXTURES = builder
 				.comment("Machine texture style.",
-						"false = classic IC2-Classic look (default), true = modern IC2 Experimental look.",
+						"true = modern IC2 Experimental look (default), false = classic IC2-Classic look.",
 						"Requires a restart to take effect (it toggles a bundled resource pack).")
-				.define("modernTextures", false);
+				.define("modernTextures", true);
 		CLIENT_SPEC = builder.build();
 	}
 
@@ -33,7 +33,7 @@ public final class AdvConfig {
 	/**
 	 * Whether the modern texture overlay should be enabled. Read directly from the config TOML —
 	 * {@code AddPackFindersEvent} fires before the {@link ForgeConfigSpec} is loaded, so
-	 * {@code MODERN_TEXTURES.get()} would throw there. Defaults to {@code false} (classic), including
+	 * {@code MODERN_TEXTURES.get()} would throw there. Defaults to {@code true} (modern), including
 	 * on the very first launch before the file exists.
 	 */
 	public static boolean useModernTextures() {
@@ -53,9 +53,9 @@ public final class AdvConfig {
 				}
 			}
 		} catch (Exception ignored) {
-			// fall through to classic default
+			// fall through to modern default
 		}
 
-		return false;
+		return true;
 	}
 }

@@ -88,12 +88,12 @@ hooked into are all gone. The processing core survives, so this port:
 
 ### Texture styles
 
-The mod ships with both texture sets from the original. The **classic** (IC2-Classic) look is the
-**default**; the **modern** (IC2 Experimental) look is a bundled resource pack force-enabled by a
-client config toggle. Edit `config/advanced_machines-client.toml`:
+The mod ships with both texture sets from the original. The **modern** (IC2 Experimental) look is the
+**default** via a bundled resource pack; set `modernTextures = false` in `config/advanced_machines-client.toml`
+for the **classic** (IC2-Classic) look:
 
 ```toml
-modernTextures = true   # false = classic (default), true = modern
+modernTextures = false  # true = modern (default), false = classic
 ```
 
 Changing it requires a restart (it swaps a resource pack). IC2's old profile-driven runtime switch

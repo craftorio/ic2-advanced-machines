@@ -33,7 +33,7 @@ public final class AdvMachinesClientPacks {
 		}
 
 		boolean modern = AdvConfig.useModernTextures();
-		AdvancedMachines.LOGGER.info("Advanced Machines texture style: {}", modern ? "modern (overlay pack enabled)" : "classic (default)");
+		AdvancedMachines.LOGGER.info("Advanced Machines texture style: {}", modern ? "modern (default, overlay pack enabled)" : "classic");
 		if (!modern) {
 			return;
 		}
