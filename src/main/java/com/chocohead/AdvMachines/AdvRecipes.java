@@ -12,6 +12,7 @@ import ic2.core.ref.Ic2Items;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 
 /**
  * Advanced Machines specific machine recipes. Most machines simply reuse their base
@@ -40,7 +41,10 @@ public final class AdvRecipes {
 	/** Register the programmatic machine recipes. Call during common setup. */
 	public static void registerExtraRecipes() {
 		// 9 scrap -> 1 scrap box, always (chance 1).
-		RECYCLER_EXTRA.addRecipe(Recipes.inputFactory.forStack(new ItemStack(Ic2Items.SCRAP), 9), chance(1), false, new ItemStack(Ic2Items.SCRAP_BOX));
+		// Use forIngredient (not forStack): IC2's RecipeInputItemStack.listStacks() returns an
+		// immutable List.of(...), and BasicMachineRecipeManager.addRecipe calls getInputs().replaceAll(),
+		// which throws UnsupportedOperationException. forIngredient is backed by a mutable-enough list.
+		RECYCLER_EXTRA.addRecipe(Recipes.inputFactory.forIngredient(Ingredient.of(Ic2Items.SCRAP), 9), chance(1), false, new ItemStack(Ic2Items.SCRAP_BOX));
 	}
 
 	private static CompoundTag chance(int value) {
