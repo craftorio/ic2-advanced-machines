@@ -1,11 +1,23 @@
 name: Release
 
-# Tag format (fixed): release/<mod_version>+<ic2_version>
-# Example: release/61.0.1+2.10.26-ex120
+# Tag formats:
+#   release/<mod_version>+<ic2_version>  e.g. release/61.0.1+2.10.26-ex120
+#   <mod_version>                        e.g. 61.0.1  (IC2 version from gradle.properties)
 on:
   push:
     tags:
       - "release/*"
+      - "[0-9]*.[0-9]*.[0-9]*"
+  workflow_dispatch:
+    inputs:
+      mod_version:
+        description: Mod version
+        required: true
+        default: "61.0.1"
+      ic2_version:
+        description: IC2 version tag
+        required: true
+        default: "2.10.26-ex120"
 
 concurrency:
   group: release-${{ github.ref }}
@@ -21,27 +33,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Parse release tag
-        id: tag
+      - name: Resolve versions
+        id: versions
         run: |
-          tag="${GITHUB_REF_NAME}"
-          payload="${tag#release/}"
-
-          if [[ "$payload" == "$tag" || -z "$payload" ]]; then
-            echo "::error::Tag must be release/<mod_version>+<ic2_version> (example: release/61.0.1+2.10.26-ex120), got: $tag"
-            exit 1
-          fi
-
-          mod_version="${payload%%+*}"
-          ic2_version="${payload#*+}"
-
-          if [[ -z "$mod_version" || -z "$ic2_version" || "$mod_version" == "$payload" ]]; then
-            echo "::error::Tag payload must be <mod_version>+<ic2_version>, got: $payload"
-            exit 1
-          fi
-
           mod_id="$(grep '^mod_id=' gradle.properties | cut -d= -f2)"
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          ic2_default="$(grep '^ic2_version=' gradle.properties | cut -d= -f2)"
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            release_tag="${{ github.event.inputs.mod_version }}"
+            mod_version="${{ github.event.inputs.mod_version }}"
+            ic2_version="${{ github.event.inputs.ic2_version }}"
+          else
+            release_tag="${GITHUB_REF_NAME}"
+
+            if [[ "$release_tag" == release/* ]]; then
+              payload="${release_tag#release/}"
+              mod_version="${payload%%+*}"
+              ic2_version="${payload#*+}"
+
+              if [[ -z "$mod_version" || -z "$ic2_version" || "$mod_version" == "$payload" ]]; then
+                echo "::error::Tag payload must be <mod_version>+<ic2_version>, got: $payload"
+                exit 1
+              fi
+            elif [[ "$release_tag" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              mod_version="$release_tag"
+              ic2_version="$ic2_default"
+              echo "Using IC2 version from gradle.properties: $ic2_version"
+            else
+              echo "::error::Unsupported tag: $release_tag"
+              exit 1
+            fi
+          fi
+
+          echo "release_tag=$release_tag" >> "$GITHUB_OUTPUT"
           echo "mod_id=$mod_id" >> "$GITHUB_OUTPUT"
           echo "mod_version=$mod_version" >> "$GITHUB_OUTPUT"
           echo "ic2_version=$ic2_version" >> "$GITHUB_OUTPUT"
@@ -57,7 +81,7 @@ jobs:
 
       - name: Build IC2 dependency
         run: |
-          ic2_version="${{ steps.tag.outputs.ic2_version }}"
+          ic2_version="${{ steps.versions.outputs.ic2_version }}"
           git clone --depth 1 --branch "$ic2_version" \
             https://github.com/HalfCooler/ic2.git ../ic2
           cd ../ic2
@@ -72,16 +96,17 @@ jobs:
       - name: Build mod
         run: |
           ./gradlew build --no-daemon \
-            -Pmod_version="${{ steps.tag.outputs.mod_version }}" \
-            -Pic2_version="${{ steps.tag.outputs.ic2_version }}"
+            -Pmod_version="${{ steps.versions.outputs.mod_version }}" \
+            -Pic2_version="${{ steps.versions.outputs.ic2_version }}"
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: Advanced Machines ${{ steps.tag.outputs.mod_version }} (IC2 ${{ steps.tag.outputs.ic2_version }})
+          tag_name: ${{ steps.versions.outputs.release_tag }}
+          name: Advanced Machines ${{ steps.versions.outputs.mod_version }} (IC2 ${{ steps.versions.outputs.ic2_version }})
           body: |
-            Mod version: `${{ steps.tag.outputs.mod_version }}`
-            IC2 version: `${{ steps.tag.outputs.ic2_version }}`
-            Tag: `${{ steps.tag.outputs.tag }}`
-          files: build/libs/${{ steps.tag.outputs.mod_id }}-${{ steps.tag.outputs.mod_version }}.jar
+            Mod version: `${{ steps.versions.outputs.mod_version }}`
+            IC2 version: `${{ steps.versions.outputs.ic2_version }}`
+            Tag: `${{ steps.versions.outputs.release_tag }}`
+          files: build/libs/${{ steps.versions.outputs.mod_id }}-${{ steps.versions.outputs.mod_version }}.jar
           generate_release_notes: true
