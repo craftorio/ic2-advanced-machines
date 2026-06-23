@@ -93,7 +93,10 @@ hooked into are all gone. The processing core survives, so this port:
 - The water machines are filled via **fluid pipes/cells**; right-click-with-bucket filling is
   not reimplemented.
 - Animated active models (centrifuge / thermal washer) collapse to a single active model.
-- JEI integration is not ported yet; base-machine recipes still show under IC2's own JEI plugin.
+- JEI: each machine is registered as a catalyst for its matching IC2 recipe category, so its
+  recipes are browsable. The **Compacting Recycler** is the exception — IC2 1.20.1 has no JEI
+  category for the recycler, so it has nothing to attach to and its "9 scrap → scrap box" extra
+  recipe is not shown in JEI (it still works in-world).
 
 ## Credits & licensing
 
