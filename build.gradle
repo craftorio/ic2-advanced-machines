@@ -1,0 +1,51 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '2.3-SNAPSHOT', changing: true
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+version = mod_version
+group = 'com.chocohead.AdvMachines'
+archivesBaseName = 'advanced-machines'
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+
+minecraft {
+    version = "${minecraft_version}-${forge_version}"
+    runDir = 'run'
+    // Must match the MCP CSVs the sources were deobfuscated with (see gradle.properties).
+    mappings = mapping_version
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // IC2 Experimental dev jar — already MCP-named, provides the ic2.core.* internals the mod uses.
+    // Sourced from http://maven.ic2.player.to/ (industrialcraft-2:${ic2_version}:dev), vendored into libs/.
+    compile files("libs/ic2-${ic2_version}-dev.jar")
+
+    // JEI is needed because JEICompat compiles against mezz.jei.api.* (and IC2's jeiIntegration).
+    // Sourced from https://maven.blamejared.com/ (mezz.jei:jei_1.12.2:${jei_version}), vendored into libs/.
+    provided files("libs/jei_1.12.2-${jei_version}.jar")
+}
+
+processResources {
+    inputs.property 'version', project.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version': project.version
+    }
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}

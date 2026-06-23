@@ -1,0 +1,41 @@
+# zh_TW translate by CLOVERsquare 翻譯者 黒羽真汐
+
+
+#Items
+advanced_machines.sharp_plate=磨過的鐵板
+
+
+#machines
+advanced_machines.machines.rotary_macerator=旋轉式磨粉機
+advanced_machines.machines.singularity_compressor=強化壓縮機
+advanced_machines.machines.centrifuge_extractor=離心抽取機
+advanced_machines.machines.compacting_recycler=緻密型回收機
+advanced_machines.machines.liquescent_extruder=液化擠壓機
+advanced_machines.machines.impellerized_roller=葉輪滾壓機
+advanced_machines.machines.water_jet_cutter=水刀切割機
+advanced_machines.machines.thermal_washer=熱力清洗機
+
+
+#GUI
+advanced_machines.gui.temp=熱量：
+advanced_machines.gui.speed=速度：
+advanced_machines.gui.speed.rot_unit=轉/分(RPM)
+advanced_machines.gui.speed.vel_unit=公分/秒
+advanced_machines.gui.pressure=壓縮力：
+advanced_machines.gui.pressure.unit=Gibbl
+
+
+#TODO
+tile.advmachine.canner.name=Vacuum Canner
+
+tile.advmachine.arraycable.name=Array Cable
+tile.advmachine.arraysolar.name=Array Solar Panel
+tile.advmachine.arraywind.name=Array Windmill
+tile.advmachine.arraywater.name=Array Watermill
+tile.advmachine.arraycontroller.name=Array Controller
+advmachine.arraycontroller.rclick01=--- ARRAY CONTROLLER ---
+advmachine.arraycontroller.rclickRR=Refresh rate: every %s ticks (checking %s blocks)
+advmachine.arraycontroller.rclickSP=%s unobstructed solar panels
+advmachine.arraycontroller.rclickWA=%s EU/t from watermills
+advmachine.arraycontroller.rclickWI=%s EU/t from windmills (right now)
+advmachine.arraycontroller.rclickCP=目前產能： %s 能量單位(EU)/t

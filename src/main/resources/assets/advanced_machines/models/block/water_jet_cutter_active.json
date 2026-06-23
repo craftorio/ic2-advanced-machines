@@ -1,0 +1,7 @@
+{
+	"parent": "advanced_machines:block/water_jet_cutter",
+	"textures": {
+		"bottom": "advanced_machines:blocks/cutter/cutter_bottom_active",
+		"north": "advanced_machines:blocks/cutter/cutter_front_active"
+	}
+}

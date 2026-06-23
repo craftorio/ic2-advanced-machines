@@ -1,0 +1,7 @@
+{
+	"parent": "advanced_machines:block/liquescent_extruder",
+	"textures": {
+		"up": "advanced_machines:blocks/extruder/extruder_top_active",
+		"north": "advanced_machines:blocks/extruder/extruder_front_active"
+	}
+}

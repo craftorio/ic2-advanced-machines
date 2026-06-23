@@ -1,0 +1,12 @@
+{
+	"parent": "block/cube",
+	"textures": {
+		"particle": "advanced_machines:blocks/macerator/macerator_back",
+		"down": "advanced_machines:blocks/macerator/macerator_bottom",
+		"up": "advanced_machines:blocks/macerator/macerator_top",
+		"north": "advanced_machines:blocks/macerator/macerator_front",
+		"east": "advanced_machines:blocks/macerator/macerator_side",
+		"south": "advanced_machines:blocks/macerator/macerator_back",
+		"west": "advanced_machines:blocks/macerator/macerator_side"
+	}
+}
