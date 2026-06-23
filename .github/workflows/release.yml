@@ -1,11 +1,11 @@
 name: Release
 
-# Tag format (fixed): <mod_version>+<ic2_version>
-# Example: 61.0.1+2.10.26-ex120
+# Tag format (fixed): release/<mod_version>+<ic2_version>
+# Example: release/61.0.1+2.10.26-ex120
 on:
   push:
     tags:
-      - '*+*'
+      - "release/*"
 
 concurrency:
   group: release-${{ github.ref }}
@@ -25,11 +25,18 @@ jobs:
         id: tag
         run: |
           tag="${GITHUB_REF_NAME}"
-          mod_version="${tag%%+*}"
-          ic2_version="${tag#*+}"
+          payload="${tag#release/}"
 
-          if [[ -z "$mod_version" || -z "$ic2_version" || "$mod_version" == "$tag" ]]; then
-            echo "::error::Tag must be <mod_version>+<ic2_version> (example: 61.0.1+2.10.26-ex120), got: $tag"
+          if [[ "$payload" == "$tag" || -z "$payload" ]]; then
+            echo "::error::Tag must be release/<mod_version>+<ic2_version> (example: release/61.0.1+2.10.26-ex120), got: $tag"
+            exit 1
+          fi
+
+          mod_version="${payload%%+*}"
+          ic2_version="${payload#*+}"
+
+          if [[ -z "$mod_version" || -z "$ic2_version" || "$mod_version" == "$payload" ]]; then
+            echo "::error::Tag payload must be <mod_version>+<ic2_version>, got: $payload"
             exit 1
           fi
 
