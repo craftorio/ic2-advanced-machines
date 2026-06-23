@@ -1,13 +1,14 @@
 package com.chocohead.AdvMachines.te;
 
-import com.chocohead.AdvMachines.api.Recipes;
-import ic2.core.profile.NotClassic;
+import com.chocohead.AdvMachines.AdvMachinesBlocks;
 
-@NotClassic
+import ic2.api.recipe.Recipes;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
+
 public class TileEntityImpellerizedRoller extends TileEntityHeatingMachine {
-   private static final byte OUTPUTS = 1;
-
-   public TileEntityImpellerizedRoller() {
-      super((byte)1, Recipes.impellerizedRoller, 1, 24);
-   }
+	public TileEntityImpellerizedRoller(BlockPos pos, BlockState state) {
+		super(AdvMachinesBlocks.BE_IMPELLERIZED_ROLLER.get(), pos, state, 1, Recipes.metalformerRolling, 1, 24);
+	}
 }

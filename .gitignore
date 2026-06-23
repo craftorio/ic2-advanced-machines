@@ -19,3 +19,6 @@ out/
 
 # Local decompile/deobf working files
 /scratch/
+
+# Vendored IC2 dev jar — not committed; build it from ../ic2 (see README).
+/libs/*.jar

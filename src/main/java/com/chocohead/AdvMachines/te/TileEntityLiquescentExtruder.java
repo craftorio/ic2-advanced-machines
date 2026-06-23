@@ -1,23 +1,26 @@
 package com.chocohead.AdvMachines.te;
 
-import com.chocohead.AdvMachines.api.Recipes;
-import ic2.core.profile.NotClassic;
+import com.chocohead.AdvMachines.AdvMachinesBlocks;
 
-@NotClassic
+import ic2.api.recipe.Recipes;
+import ic2.core.ref.Ic2SoundEvents;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.level.block.state.BlockState;
+
 public class TileEntityLiquescentExtruder extends TileEntityHeatingMachine {
-   private static final byte OUTPUTS = 3;
+	public TileEntityLiquescentExtruder(BlockPos pos, BlockState state) {
+		super(AdvMachinesBlocks.BE_LIQUESCENT_EXTRUDER.get(), pos, state, 3, Recipes.metalformerExtruding, 1, 24);
+	}
 
-   public TileEntityLiquescentExtruder() {
-      super((byte)3, Recipes.liquescentExtruder, 1, 24);
-   }
+	@Override
+	public int getHeat() {
+		return (this.heat * 100 + 5000) / 10000;
+	}
 
-   @Override
-   public int getHeat() {
-      return (this.heat * 100 + 5000) / 10000;
-   }
-
-   @Override
-   public String getSound() {
-      return "Machines/ExtractorOp.ogg";
-   }
+	@Override
+	public SoundEvent getLoopingSoundEvent() {
+		return Ic2SoundEvents.MACHINE_EXTRACTOR_OPERATE;
+	}
 }

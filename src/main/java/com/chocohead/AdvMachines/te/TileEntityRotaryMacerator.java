@@ -1,39 +1,40 @@
 package com.chocohead.AdvMachines.te;
 
-import com.chocohead.AdvMachines.api.Recipes;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import com.chocohead.AdvMachines.AdvMachinesBlocks;
+
+import ic2.api.recipe.Recipes;
+import ic2.core.ref.Ic2SoundEvents;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TileEntityRotaryMacerator extends TileEntityHeatingMachine {
-   private static final byte OUTPUTS = 2;
+	public TileEntityRotaryMacerator(BlockPos pos, BlockState state) {
+		super(AdvMachinesBlocks.BE_ROTARY_MACERATOR.get(), pos, state, 2, Recipes.macerator);
+	}
 
-   public TileEntityRotaryMacerator() {
-      super((byte)2, Recipes.rotaryMacerator);
-   }
+	@OnlyIn(Dist.CLIENT)
+	@Override
+	protected void updateEntityClient() {
+		super.updateEntityClient();
+		Level world = this.getLevel();
+		if (this.getActive() && world.random.nextInt(8) == 0) {
+			for (int i = 0; i < 4; i++) {
+				double x = this.worldPosition.getX() + 0.5 + world.random.nextFloat() * 0.6 - 0.3;
+				double y = this.worldPosition.getY() + 1 + world.random.nextFloat() * 0.2 - 0.1;
+				double z = this.worldPosition.getZ() + 0.5 + world.random.nextFloat() * 0.6 - 0.3;
+				world.addParticle(ParticleTypes.SMOKE, x, y, z, 0.0, 0.0, 0.0);
+			}
+		}
+	}
 
-   @SideOnly(Side.CLIENT)
-   protected void updateEntityClient() {
-      super.updateEntityClient();
-      if (this.getActive() && this.world.rand.nextInt(8) == 0) {
-         for (int i = 0; i < 4; i++) {
-            this.world
-               .spawnParticle(
-                  EnumParticleTypes.SMOKE_NORMAL,
-                  (double)this.pos.getX() + 0.5 + (double)this.world.rand.nextFloat() * 0.6 - 0.3,
-                  (double)(this.pos.getY() + 1) + (double)this.world.rand.nextFloat() * 0.2 - 0.1,
-                  (double)this.pos.getZ() + 0.5 + (double)this.world.rand.nextFloat() * 0.6 - 0.3,
-                  0.0,
-                  0.0,
-                  0.0,
-                  new int[0]
-               );
-         }
-      }
-   }
-
-   @Override
-   public String getSound() {
-      return "Machines/MaceratorOp.ogg";
-   }
+	@Override
+	public SoundEvent getLoopingSoundEvent() {
+		return Ic2SoundEvents.MACHINE_MACERATOR_OPERATE;
+	}
 }

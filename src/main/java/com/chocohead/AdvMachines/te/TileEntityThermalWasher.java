@@ -1,48 +1,41 @@
 package com.chocohead.AdvMachines.te;
 
-import com.chocohead.AdvMachines.api.Recipes;
-import ic2.core.ExplosionIC2;
-import ic2.core.IC2;
-import ic2.core.ExplosionIC2.Type;
-import ic2.core.profile.NotClassic;
-import ic2.core.util.LogCategory;
-import ic2.core.util.Util;
-import org.apache.logging.log4j.Level;
+import com.chocohead.AdvMachines.AdvMachinesBlocks;
 
-@NotClassic
+import ic2.api.recipe.Recipes;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+
 public class TileEntityThermalWasher extends TileEntityHeatingWaterMachine {
-   private static final byte OUTPUTS = 3;
-   private static final short IDLE_WATER_USE = 5;
-   private static final short ACTIVE_WATER_USE = 500;
+	/** Heat at/above which inserting water into an empty tank flash-explodes the machine. */
+	private static final int EXPLODE_HEAT = 5000;
+	private int lastWaterAmount = 0;
 
-   public TileEntityThermalWasher() {
-      super((byte)3, Recipes.thermalWasher, 6, 48, (short)500);
-   }
+	public TileEntityThermalWasher(BlockPos pos, BlockState state) {
+		super(AdvMachinesBlocks.BE_THERMAL_WASHER.get(), pos, state, 3, Recipes.oreWashing, 6, 48, 500);
+	}
 
-   @Override
-   public int getHeat() {
-      return this.heat * 100 / 10000;
-   }
+	@Override
+	protected void updateEntityServer() {
+		super.updateEntityServer();
+		int water = this.getWaterAmount();
+		if (water > 0 && this.lastWaterAmount <= 0 && this.heat >= EXPLODE_HEAT) {
+			Level world = this.getLevel();
+			world.explode(null, this.worldPosition.getX() + 0.5, this.worldPosition.getY() + 0.5, this.worldPosition.getZ() + 0.5,
+					12.0F, Level.ExplosionInteraction.BLOCK);
+		}
+		this.lastWaterAmount = water;
+	}
 
-   @Override
-   protected int getIdleWaterUse() {
-      return (int)((double)this.heat / 10000.0 * 5.0);
-   }
+	@Override
+	public int getHeat() {
+		return this.heat * 100 / 10000;
+	}
 
-   @Override
-   protected void onFluidFill(boolean didFill, int amount) {
-      super.onFluidFill(didFill, amount);
-      if (didFill && this.tank.getFluidAmount() - amount <= 0 && this.heat >= 5000) {
-         IC2.log
-            .log(
-               LogCategory.PlayerActivity,
-               Level.INFO,
-               "Thermal Washer at %s exploded (%d water inserted at %d%% heat)",
-               new Object[]{Util.formatPosition(this), amount, this.heat * 100 / 10000}
-            );
-         ExplosionIC2 explosion = new ExplosionIC2(this.world, null, this.pos, 12.0F, 0.0F, Type.Heat);
-         explosion.destroy(this.pos.getX(), this.pos.getY(), this.pos.getZ(), true);
-         explosion.doExplosion();
-      }
-   }
+	@Override
+	protected int getIdleWaterUse() {
+		return (int) (this.heat / 10000.0 * 5.0);
+	}
 }

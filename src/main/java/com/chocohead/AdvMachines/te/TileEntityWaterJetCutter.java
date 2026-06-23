@@ -1,20 +1,19 @@
 package com.chocohead.AdvMachines.te;
 
-import com.chocohead.AdvMachines.api.Recipes;
-import ic2.core.profile.NotClassic;
+import com.chocohead.AdvMachines.AdvMachinesBlocks;
 
-@NotClassic
+import ic2.api.recipe.Recipes;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
+
 public class TileEntityWaterJetCutter extends TileEntityHeatingWaterMachine {
-   private static final byte OUTPUTS = 1;
-   protected static final short IDLE_WATER_USE = 2;
-   protected static final short ACTIVE_WATER_USE = 500;
+	public TileEntityWaterJetCutter(BlockPos pos, BlockState state) {
+		super(AdvMachinesBlocks.BE_WATER_JET_CUTTER.get(), pos, state, 1, Recipes.metalformerCutting, 1, 24, 500);
+	}
 
-   public TileEntityWaterJetCutter() {
-      super((byte)1, Recipes.waterJetCutter, 1, 24, (short)500);
-   }
-
-   @Override
-   protected int getIdleWaterUse() {
-      return (int)((double)this.heat / 10000.0 * 2.0 + this.world.rand.nextDouble());
-   }
+	@Override
+	protected int getIdleWaterUse() {
+		return (int) (this.heat / 10000.0 * 2.0 + this.getLevel().random.nextDouble());
+	}
 }

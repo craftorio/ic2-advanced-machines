@@ -1,21 +1,26 @@
 package com.chocohead.AdvMachines.te;
 
-import com.chocohead.AdvMachines.api.Recipes;
+import com.chocohead.AdvMachines.AdvMachinesBlocks;
+
+import ic2.api.recipe.Recipes;
+import ic2.core.ref.Ic2SoundEvents;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class TileEntitySingularityCompressor extends TileEntityHeatingMachine {
-   private static final byte OUTPUTS = 1;
+	public TileEntitySingularityCompressor(BlockPos pos, BlockState state) {
+		super(AdvMachinesBlocks.BE_SINGULARITY_COMPRESSOR.get(), pos, state, 1, Recipes.compressor);
+	}
 
-   public TileEntitySingularityCompressor() {
-      super((byte)1, Recipes.singularityCompressor);
-   }
+	@Override
+	public int getHeat() {
+		return this.heat * 9;
+	}
 
-   @Override
-   public int getHeat() {
-      return this.heat * 9;
-   }
-
-   @Override
-   public String getSound() {
-      return "Machines/CompressorOp.ogg";
-   }
+	@Override
+	public SoundEvent getLoopingSoundEvent() {
+		return Ic2SoundEvents.MACHINE_COMPRESSOR_OPERATE;
+	}
 }

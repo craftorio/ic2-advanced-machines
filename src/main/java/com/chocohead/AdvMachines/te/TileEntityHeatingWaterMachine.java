@@ -1,133 +1,73 @@
 package com.chocohead.AdvMachines.te;
 
-import com.google.common.base.Predicate;
+import java.util.Collection;
+
 import ic2.api.recipe.IMachineRecipeManager;
 import ic2.api.recipe.IRecipeInput;
+import ic2.api.recipe.Recipes;
 import ic2.core.block.comp.Fluids;
-import ic2.core.block.comp.Fluids.InternalFluidTank;
+import ic2.core.fluid.Ic2FluidStack;
 import ic2.core.network.GuiSynced;
-import ic2.core.util.StackUtil;
-import ic2.core.util.Util;
-import java.util.Collection;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidActionResult;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+
+/**
+ * Heating machine variant that additionally consumes water from an internal tank
+ * (the Water Jet Cutter and Thermal Washer). The tank only accepts water and is
+ * insert-only; fill it with fluid pipes/cells.
+ */
 public abstract class TileEntityHeatingWaterMachine extends TileEntityHeatingMachine {
-   @GuiSynced
-   protected final InternalFluidTank tank = new InternalFluidTank(
-      "tank", Util.allFacings, Util.noFacings, Fluids.fluidPredicate(new Fluid[]{FluidRegistry.WATER}), 8000
-   ) {
-      public int fillInternal(FluidStack resource, boolean doFill) {
-         int out = super.fillInternal(resource, doFill);
-         if (out > 0) {
-            TileEntityHeatingWaterMachine.this.onFluidFill(doFill, out);
-         }
+	protected final Fluids fluids = this.addComponent(new Fluids(this));
+	@GuiSynced
+	protected final Fluids.InternalFluidTank tank;
+	protected final int activeWaterUse;
 
-         return out;
-      }
+	public TileEntityHeatingWaterMachine(BlockEntityType<? extends TileEntityHeatingWaterMachine> type, BlockPos pos, BlockState state,
+			int numberOfOutputs, Recipes.IGetter<? extends IMachineRecipeManager<IRecipeInput, Collection<ItemStack>, ItemStack>> recipeManager,
+			int idleEU, int activeEU, int activeWaterUse) {
+		super(type, pos, state, numberOfOutputs, recipeManager, idleEU, activeEU);
+		this.tank = this.fluids.addTankInsert("tank", 8000, Fluids.fluidPredicate(net.minecraft.world.level.material.Fluids.WATER));
+		this.activeWaterUse = activeWaterUse;
+	}
 
-      public boolean canDrain() {
-         return false;
-      }
-   };
-   protected final short activeWaterUse;
+	public int getWaterAmount() {
+		return this.tank.getFluidAmount();
+	}
 
-   public TileEntityHeatingWaterMachine(
-      byte numberOfOutputs, IMachineRecipeManager<IRecipeInput, Collection<ItemStack>, ItemStack> recipeSet, short activeWaterUse
-   ) {
-      super(numberOfOutputs, recipeSet);
-      ((Fluids)this.addComponent(new Fluids(this))).addTank(this.tank);
-      this.activeWaterUse = activeWaterUse;
-   }
+	@Override
+	protected boolean canRun() {
+		int waterNeeded = this.getIdleWaterUse();
+		if (waterNeeded <= 0) {
+			return true;
+		}
 
-   public TileEntityHeatingWaterMachine(
-      byte tier, byte numberOfOutputs, IMachineRecipeManager<IRecipeInput, Collection<ItemStack>, ItemStack> recipeSet, short activeWaterUse
-   ) {
-      super(tier, numberOfOutputs, recipeSet);
-      ((Fluids)this.addComponent(new Fluids(this))).addTank(this.tank);
-      this.activeWaterUse = activeWaterUse;
-   }
+		Ic2FluidStack available = this.tank.drainMb(waterNeeded, true);
+		if (available != null && available.getAmountMb() == waterNeeded) {
+			this.tank.drainMb(waterNeeded, false);
+			return true;
+		}
 
-   public TileEntityHeatingWaterMachine(
-      byte numberOfOutputs, IMachineRecipeManager<IRecipeInput, Collection<ItemStack>, ItemStack> recipeSet, int idleEU, int activeEU, short activeWaterUse
-   ) {
-      super(numberOfOutputs, recipeSet, idleEU, activeEU);
-      ((Fluids)this.addComponent(new Fluids(this))).addTank(this.tank);
-      this.activeWaterUse = activeWaterUse;
-   }
+		return false;
+	}
 
-   public TileEntityHeatingWaterMachine(
-      byte tier,
-      byte numberOfOutputs,
-      IMachineRecipeManager<IRecipeInput, Collection<ItemStack>, ItemStack> recipeSet,
-      int idleEU,
-      int activeEU,
-      short activeWaterUse
-   ) {
-      super(tier, numberOfOutputs, recipeSet, idleEU, activeEU);
-      ((Fluids)this.addComponent(new Fluids(this))).addTank(this.tank);
-      this.activeWaterUse = activeWaterUse;
-   }
+	protected abstract int getIdleWaterUse();
 
-   protected void onFluidFill(boolean didFill, int amount) {
-   }
+	@Override
+	public boolean canOperate() {
+		if (!super.canOperate()) {
+			return false;
+		}
 
-   @Override
-   public boolean canRun() {
-      int waterNeeded = this.getIdleWaterUse();
-      if (waterNeeded == 0) {
-         return true;
-      } else {
-         FluidStack stack = this.tank.drainInternal(waterNeeded, false);
-         if (stack != null && stack.amount == waterNeeded) {
-            this.tank.drainInternal(waterNeeded, true);
-            return true;
-         } else {
-            return false;
-         }
-      }
-   }
+		Ic2FluidStack available = this.tank.drainMb(this.activeWaterUse, true);
+		return available != null && available.getAmountMb() == this.activeWaterUse;
+	}
 
-   protected abstract int getIdleWaterUse();
-
-   @Override
-   public boolean canOperate() {
-      FluidStack stack;
-      return super.canOperate() && (stack = this.tank.drainInternal(this.activeWaterUse, false)) != null && stack.amount == this.activeWaterUse;
-   }
-
-   @Override
-   public void operate() {
-      super.operate();
-      this.tank.drainInternal(this.activeWaterUse, true);
-   }
-
-   protected boolean onActivated(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
-      ItemStack heldItem = StackUtil.get(player, hand);
-      int space;
-      if (!StackUtil.isEmpty(heldItem)
-         && FluidUtil.tryEmptyContainer(heldItem, this.tank, space = this.tank.getCapacity() - this.tank.getFluidAmount(), player, false).success) {
-         FluidActionResult stack = FluidUtil.tryEmptyContainer(heldItem, this.tank, space, player, true);
-
-         assert stack.success;
-
-         if (StackUtil.getSize(heldItem) > 1) {
-            StackUtil.consumeOrError(player, hand, 1);
-            StackUtil.storeInventoryItem(stack.result, player, false);
-         } else {
-            StackUtil.set(player, hand, stack.result);
-         }
-
-         return true;
-      } else {
-         return super.onActivated(player, hand, side, hitX, hitY, hitZ);
-      }
-   }
+	@Override
+	public void operate() {
+		super.operate();
+		this.tank.drainMb(this.activeWaterUse, false);
+	}
 }
