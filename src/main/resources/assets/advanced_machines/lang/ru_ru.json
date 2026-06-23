@@ -12,6 +12,15 @@
 
   "item.advanced_machines.sharp_plate": "Заострённая железная пластина",
 
+  "container.advanced_machines.rotary_macerator": "Вращающийся дробитель",
+  "container.advanced_machines.singularity_compressor": "Сингулярный компрессор",
+  "container.advanced_machines.centrifuge_extractor": "Центробежный экстрактор",
+  "container.advanced_machines.compacting_recycler": "Уплотняющий утилизатор",
+  "container.advanced_machines.liquescent_extruder": "Растворяющий экструдер",
+  "container.advanced_machines.impellerized_roller": "Крыльчатый каток",
+  "container.advanced_machines.water_jet_cutter": "Водоструйный резак",
+  "container.advanced_machines.thermal_washer": "Термический промыватель",
+
   "advanced_machines.gui.temp": "Нагрев:",
   "advanced_machines.gui.speed": "Скорость:",
   "advanced_machines.gui.speed.rot_unit": "об/мин",

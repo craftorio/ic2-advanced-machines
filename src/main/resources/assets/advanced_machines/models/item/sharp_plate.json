@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "advanced_machines:items/sharp_plate"
+    "layer0": "advanced_machines:item/sharp_plate"
   }
 }
