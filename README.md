@@ -64,7 +64,7 @@ cd ../advanced-machines
 ./gradlew build
 ```
 
-Output: `build/libs/advanced_machines-61.0.1-1.20.1.jar`. To test, install it into a 1.20.1 Forge
+Output: `build/libs/advanced_machines-61.0.2-1.20.1.jar`. To test, install it into a 1.20.1 Forge
 profile alongside IC2, or run `./gradlew runClient` with IC2 on the mod classpath.
 
 > **Why a dev jar and not `fg.deobf` on the release jar?** IC2's release jar is reobfuscated,
