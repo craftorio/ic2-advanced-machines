@@ -1,7 +1,7 @@
 name: Release
 
 # Tag formats:
-#   release/<mod_version>+<ic2_version>  e.g. release/61.0.1+2.10.26-ex120
+#   release/<mod_version>+<ic2_version>  e.g. release/61.0.2+2.10.29-ex120
 #   <mod_version>                        e.g. 61.0.1  (IC2 version from gradle.properties)
 on:
   push:
@@ -17,7 +17,7 @@ on:
       ic2_version:
         description: IC2 version tag
         required: true
-        default: "2.10.26-ex120"
+        default: "2.10.29-ex120"
 
 concurrency:
   group: release-${{ github.ref }}

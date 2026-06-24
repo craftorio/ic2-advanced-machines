@@ -41,7 +41,7 @@ Plus the **Sharpened Iron Plate** crafting component.
 |---|---|
 | Minecraft | 1.20.1 |
 | Forge | 47.4.20 |
-| IC2 | [IC2: Refactored](https://github.com/HalfCooler/ic2) `2.10.26-ex120` or newer |
+| IC2 | [IC2: Refactored](https://github.com/HalfCooler/ic2) `2.10.29-ex120` or newer |
 
 ## Building
 
@@ -55,7 +55,7 @@ cd ../ic2
 ./gradlew build
 
 # 2. Assemble the dev jar and drop it into this project's libs/
-jar cf ../advanced-machines/libs/ic2-forge-2.10.26-ex120-dev.jar \
+jar cf ../advanced-machines/libs/ic2-forge-2.10.29-ex120-dev.jar \
     -C build/classes/java/main . \
     -C build/resources/main .
 
