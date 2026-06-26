@@ -41,8 +41,11 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**
  * Port of the classic Advanced Machines heating machine base. Unlike vanilla IC2
@@ -53,6 +56,9 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public abstract class TileEntityHeatingMachine extends TileEntityElectricMachine
 		implements IHasGui, IGuiValueProvider, IUpgradableBlock {
+	/** Tracks last synced active state on the client for multiplayer sound start/stop. */
+	private boolean clientLastActive;
+
 	protected static final int DEFAULT_TIER = 2;
 	protected static final int DEFAULT_IDLE_EU = 1;
 	protected static final int DEFAULT_ACTIVE_EU = 15;
@@ -116,6 +122,40 @@ public abstract class TileEntityHeatingMachine extends TileEntityElectricMachine
 
 	protected int getSpeedFactor() {
 		return 1;
+	}
+
+	@OnlyIn(Dist.CLIENT)
+	@Override
+	protected void updateEntityClient() {
+		super.updateEntityClient();
+		// IC2 2.10.29 tries to restart looping sounds in updateEntityServer(), but on a dedicated
+		// server IC2.soundManager is a no-op — sounds must be driven from the client instead.
+		if (this.loopingSound != null) {
+			if (this.getActive() && !this.loopingSound.isPlaying()) {
+				this.loopingSound.play();
+			} else if (!this.getActive() && this.loopingSound.isPlaying()) {
+				this.loopingSound.stop();
+			}
+		}
+	}
+
+	@Override
+	public void onNetworkUpdate(String field) {
+		super.onNetworkUpdate(field);
+		Level level = this.getLevel();
+		if ("active".equals(field) && level != null && level.isClientSide) {
+			boolean nowActive = this.getActive();
+			if (nowActive != this.clientLastActive) {
+				this.clientLastActive = nowActive;
+				if (nowActive) {
+					this.startPlaySound(false);
+				} else {
+					this.stopStartSound();
+					this.stopLoopingSound();
+					this.playStopSound();
+				}
+			}
+		}
 	}
 
 	@Override
